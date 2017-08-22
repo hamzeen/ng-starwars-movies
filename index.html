@@ -1,0 +1,100 @@
+<html>
+<head>
+  <title>Starwars Movies</title>
+  <meta charset='UTF-8'>
+  <script src="http://hamzeen.github.io/js/jquery-1.8.3.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+  <link rel="stylesheet" media="screen" href="http://hamzeen.github.io/css/bootstrap.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body ng-app="firstApp" ng-controller="booksCtrl">
+  <div id="toast_cont">
+    <div id="toast_content"></div></div>
+
+  <article >
+   <section id="films_list">
+
+     <h2>The Starwars Movies</h2>
+     <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>Film Title</th><th>Director</th><th>&nbsp;</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="film in data.results">
+          <td>{{film.title}}</td>
+          <td>{{film.director}}</td>
+          <td><a ng-click="showDetails(film.url + '?format=json', 4000)" href="">more ››</a></td>
+        </tr>
+      </tbody>
+    </table>
+   </section>
+  </article>
+
+  <div style="width:80%; margin-left:auto; margin-right:auto;">
+    <p>Hamzeen. H. Thursday, 03<sup>rd</sup> Aug 2017</p></div>
+
+<!-- the controller for consuming the web service & reading its attributes (parsing)//-->
+<script type="text/javascript">
+  // module declaration
+  var app = angular.module('firstApp', []);
+
+  // contorller for the app, only uses 1 controller
+  app.controller('booksCtrl', function($scope, $http, NotifSrv) {
+
+    // angular js's built-in method for consuming web services
+    $http.get("https://swapi.co/api/films/?format=json")
+    .then(function(response) {
+      $scope.data = response.data;
+    });
+
+    $scope.showDetails = function(str, duration) {
+      $http.get(str)
+      .then(function(response) {
+        var film = {};
+        film.title = response.data.title;
+        film.opening = response.data.opening_crawl;
+        film.producer = response.data.producer;
+
+        NotifSrv.myFunction('<strong>title: </strong><br/>' + film.title +
+        '<br/><br/><strong>Producer: </strong><br/>'+film.producer +
+        '<br/><br/><strong>Opening: </strong><br/>'+film.opening,
+        3000);
+      });
+
+    }
+  });
+
+  // an angular service for notification(s)
+  angular.module('firstApp')
+  .service('NotifSrv',function($document, $timeout) {
+    this.myFunction = function(msg, duration) {
+      // log => console.log (msg);
+      var toast = angular.element("#toast_cont");
+      var content = angular.element("#toast_content");
+
+      if((toast.attr('class') == null) || toast.attr('class').indexOf('visible') < 0) {
+        content.html(msg);
+        toast.addClass("visible");
+
+        // when a boolean is provided
+        if(typeof duration === 'boolean' && duration) {
+          $timeout(function() {
+            toast.removeClass("visible");
+            }, 5000);
+        }
+
+        // when the time to live is set
+        if(typeof duration === 'number') {
+          $timeout(function() {
+            toast.removeClass("visible");
+          }, duration);
+        }
+      }
+    }
+  }); // end of service
+</script>
+</body>
+</html>
