@@ -45,7 +45,7 @@
   app.controller('booksCtrl', function($scope, $http, NotifSrv) {
 
     // angular js's built-in method for consuming web services
-    $http.get("https://swapi.co/api/films/?format=json")
+    $http.get("https://swapi.dev/api/films/?format=json")
     .then(function(response) {
       $scope.data = response.data;
     });
